@@ -46,8 +46,3 @@ public Restourant(String a,double b,String c)   {RestourantName=a;AvrgRate=b;Res
         c=c/i;
         return c;
     }
-
-
-
-
-}

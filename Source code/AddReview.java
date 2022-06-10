@@ -1,7 +1,5 @@
 package com.Coskun.eatie;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,8 +8,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
-import java.util.ArrayList;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 
 public class AddReview extends AppCompatActivity {
 static private EditText Rev;
@@ -37,31 +40,31 @@ static private RadioButton frst,lst;
     {
         SendClicker(this);
     }
+    private void SendMessage(String c)
+    {
+        Toast.makeText(this,c,Toast.LENGTH_SHORT).show();
+    }
 
     private void SendClicker(Context context)
     {
         Sendreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               ReviewDb db=new ReviewDb(context);
-               RestourantDb Rdb=new RestourantDb(context);
 
+               FirebaseFirestore firestore=FirebaseFirestore.getInstance();
                 Intent intent=getIntent();
-                String UserName=intent.getStringExtra("UserNam");
-                String RestName=intent.getStringExtra("ResName");
-                int rate=getRate();
-                db.DBAdd(UserName,RestName,Rev.getText().toString(),rate);
-                db.close();
-                ArrayList<Restourant> ALlRest=new ArrayList<>();
-                ALlRest=Rdb.AllRestourants();
-                for(Restourant restourant:ALlRest)
-                {
-                    if(restourant.getRestourantName()==RestName)
-                        Rdb.ReAverage(RestName,restourant.SetAvrgRate(context));
+                HashMap<String, Object> veri=new HashMap<>();
+                String RestourantName=intent.getStringExtra("ResName"),UserName=intent.getStringExtra("UserNam");
 
-                }
+                veri.put("UserName",UserName);
+                veri.put("RestourantName",RestourantName);
+                veri.put("Rate",getRate());
+                veri.put("yorum",Rev.getText().toString());
+                veri.put("YorumP",String.valueOf(0));
+                //db.collection('users').doc(this.username).collection('booksList').doc(myBookId).set({
+                firestore.collection("Yorum").document(RestourantName).collection("Yorumlar").document(Rev.getText().toString()).set(veri);
 
-                finishAndRemoveTask();
+                Reload();
             }
         });
     }
@@ -88,5 +91,11 @@ static private RadioButton frst,lst;
             default:
                 return 0;
         }
+    }
+
+    private void Reload()
+    {
+
+        finish();
     }
 }

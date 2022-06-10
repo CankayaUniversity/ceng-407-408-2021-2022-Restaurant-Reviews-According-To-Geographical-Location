@@ -1,30 +1,31 @@
 package com.Coskun.eatie;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ListingForReviews extends RecyclerView.Adapter<ListingForReviews.ListerforReviewsHolder> {
     private ArrayList<Reviews> ReviewList;
     private Context context;
     private String RestourantName;
     public OnClickFunc1Listener listener;
-    public OnFloatListener listener1;
 
     public ListingForReviews(ArrayList<Reviews> Rest, String a, Context context) {
         this.ReviewList = Rest;
@@ -53,7 +54,7 @@ public class ListingForReviews extends RecyclerView.Adapter<ListingForReviews.Li
     class ListerforReviewsHolder extends RecyclerView.ViewHolder
     {
 
-        TextView ReviewerName,ReviewRate,ReviewSum;
+        TextView ReviewerName,ReviewRate,ReviewSum,diffrence;
         FloatingActionButton red,green;
         public ListerforReviewsHolder(View CurrentItem1)
         {
@@ -63,20 +64,42 @@ public class ListingForReviews extends RecyclerView.Adapter<ListingForReviews.Li
             ReviewSum=(TextView) CurrentItem1.findViewById(R.id.ResRev);
             red=(FloatingActionButton) CurrentItem1.findViewById(R.id.Redbtn);
             green=(FloatingActionButton) CurrentItem1.findViewById(R.id.greenBtn);
+            diffrence=(TextView) CurrentItem1.findViewById(R.id.Diffrence);
+           newSet(RestourantName,ReviewSum.getText().toString(),CurrentItem1);
             CurrentItem1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    if (listener != null && position == RecyclerView.NO_POSITION)
-                        listener.OnItemClick1(RestourantName);
+                    if (listener != null && (red.isPressed()||green.isPressed()))
+                        listener.OnItemClick1();
                 }
             });
             red.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(listener1!=null)
                     {
-                        listener1.OnItemClick2();
+                      if(red.isClickable())
+                      { int flag= Integer.parseInt(diffrence.getText().toString());
+                          flag--;
+                          diffrence.setText(String.valueOf(flag));
+                          upd(RestourantName,ReviewSum.getText().toString(),Integer.parseInt(diffrence.getText().toString()));
+                          newSet(RestourantName,ReviewSum.getText().toString(),CurrentItem1);
+                          red.setClickable(false);
+                          green.setClickable(true);
+                      }
+                    }
+                }
+            });
+            green.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    {
+                        int flag= Integer.parseInt(diffrence.getText().toString());
+                        flag++;
+                        diffrence.setText(String.valueOf(flag));
+                        upd(RestourantName,ReviewSum.getText().toString(),Integer.parseInt(diffrence.getText().toString()));
+                        green.setClickable(false);
+                        red.setClickable(true);
                     }
                 }
             });
@@ -89,25 +112,50 @@ public class ListingForReviews extends RecyclerView.Adapter<ListingForReviews.Li
             this.ReviewSum.setText(reviews.getReview().toString());
         }
 
+        private void CNTRL()
+        {
+            int flag= Integer.parseInt(diffrence.getText().toString());
+            if(flag<-10)
+            {
+               // Delete
+            }
+        }
     }
     public interface OnClickFunc1Listener
     {
-        void OnItemClick1(String R_Name);
+        void OnItemClick1();
     }
-
     public void SetOnItemClickListener(OnClickFunc1Listener listener)
     {
         this.listener=listener;
     }
+private void upd(String RestName,String Review,int newp)
+{
 
-    public interface OnFloatListener
-    {
-        void OnItemClick2();
-    }
-
-    public void SetOnFloatClickListener(OnFloatListener listener)
-    {
-        this.listener1=listener;
-    }
+    DocumentReference  documentReference;
+    FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+    firestore.collection("Yorum").document(RestName).collection("Yorumlar").document(Review)
+            .update("YorumP",newp);
+}
+private void newSet(String RestName, String Review, View CurrentItem)
+{
+    FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+    CollectionReference collectionReference=firestore.collection("Yorum").document(RestName).collection("Yorumlar");
+    Query query = collectionReference.whereEqualTo("RestRestourantName", RestName);
+    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        @Override
+        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult())
+                {
+                    if(document.getData().get("yorum").toString().equals(Review))
+                {
+                    TextView diffrence=(TextView) CurrentItem.findViewById(R.id.Diffrence);
+                    diffrence.setText(document.getData().get("YorumP").toString());}
+                }
+            }
+        }
+    });
+}
 
 }

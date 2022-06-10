@@ -1,24 +1,34 @@
 package com.Coskun.eatie;
 
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.view.KeyEvent;
 
-import java.util.ArrayList;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 
 public class SignUp extends AppCompatActivity {
 
     public static Button  Enter;
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firestore;
+    private DocumentReference documentReference;
+    private HashMap<String,Object> veri;
     public static EditText UserId,UserMail,UserPassword,PasswordCntrl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +36,7 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         Const();
         CallClicker(this);
-        Restourant c=new Restourant();
-        Reviews w=new Reviews();
-        ArrayList<Restourant> q=new ArrayList<>();
-        q=c.getData(this);
-        ArrayList<Reviews> rev=new ArrayList<>();
-        rev=w.GetAllReviews(this);
+
     }
     public void Const()
     {
@@ -40,6 +45,9 @@ public class SignUp extends AppCompatActivity {
         UserPassword=findViewById(R.id.UserPassword);
         PasswordCntrl=findViewById(R.id.PasswordCntrl);
         Enter=findViewById(R.id.EnterBtn);
+        veri=new HashMap<>();
+        firebaseAuth= FirebaseAuth.getInstance();
+        firestore=FirebaseFirestore.getInstance();
     }
     private void SendMessage(String c)
     {
@@ -75,11 +83,36 @@ public class SignUp extends AppCompatActivity {
         }
         return q;
     }
-    private void Add()
-    {
-        UDBControl db=new UDBControl(this);
-        db.DBAdd(UserId.getText().toString(),UserPassword.getText().toString(),UserMail.getText().toString());
-    }
+   private void AddToMail(){
+       final boolean[] t = {false};
+       veri.put("UserName",UserId.getText().toString());
+       veri.put("UserMail",UserMail.getText().toString());
+       veri.put("UserPassword",UserPassword.getText().toString());
+       veri.put("Utag","Logged");
+       veri.put("RestName"," null");
+       firebaseAuth.createUserWithEmailAndPassword(UserMail.getText().toString(),UserPassword.getText().toString());
+
+       documentReference = firestore.collection("User").document(UserMail.getText().toString());
+       documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+           @Override
+           public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+               if (task.isSuccessful()) {
+                   DocumentSnapshot document = task.getResult();
+                   if (document.exists()) {
+                       SendMessage("There is a user with given ID");
+                   }
+                   else {
+                       firestore.collection("User").document(UserMail.getText().toString())
+                               .set(veri);
+
+                   }
+               } else {
+                   Log.d("TAG", "get failed with ", task.getException());
+               }
+           }
+       });
+
+   }
     private void CallClicker(Context context)
     {
         Enter.setOnClickListener(new View.OnClickListener() {
@@ -95,13 +128,10 @@ public class SignUp extends AppCompatActivity {
                         try
                         {
                             User b=new User();
-                           if(!b.ControlUserName(context,UserId.getText().toString()))
-                            {
-                                Add();
+
+                                //Add();
+                                AddToMail();
                                 finish();
-                            }
-                           else
-                           {SendMessage("There is a user with given ID"); }
                         }
                         catch (Exception e)
                         {

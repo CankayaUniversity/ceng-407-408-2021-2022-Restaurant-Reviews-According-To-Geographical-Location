@@ -62,6 +62,7 @@ public class AdminPage extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
         veri = new HashMap<>();
         Btns();
+        
     }
 
     private void Btns() {
@@ -71,6 +72,32 @@ public class AdminPage extends AppCompatActivity {
         AddRestourant(this);
         ChangeTag();
     }
+    
+    private void test(Context context)
+{
+  firestore=FirebaseFirestore.getInstance();
+    CollectionReference collectionReference=firestore.collection("User");
+    Query query = collectionReference.whereEqualTo("Utag", "Pending");
+    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+    {
+        @Override
+        public void onComplete(@NonNull Task<QuerySnapshot> task)
+        {
+            if (task.isSuccessful())
+            {
+                ArrayList<String> pendList=new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult())
+                {
+                    pendList.add(document.getData().get("UserMail").toString());
+                }
+                ArrayAdapter<String> arrayAdapter=new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item,pendList);
+                arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+              spitter.setAdapter(arrayAdapter);
+            }
+        }
+    });
+}
+    
     private void ChangeTag()
     {
         SetB.setOnClickListener(new View.OnClickListener() {

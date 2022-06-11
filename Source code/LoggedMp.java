@@ -92,6 +92,12 @@ public class LoggedMp extends AppCompatActivity {
     {
         Toast.makeText(this,c,Toast.LENGTH_SHORT).show();
     }
+    
+    private void Sendrq(String Un){
+        FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+        firestore.collection("User").document(Un).update("Utag","Pending");
+    }
+    
     public void a(String a, String b)
     {
 

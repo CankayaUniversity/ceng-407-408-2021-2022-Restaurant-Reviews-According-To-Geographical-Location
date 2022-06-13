@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/design_food"
+    tools:context=".AdminPage">
+
+    <LinearLayout
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="70sp"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/Deleted"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:background="@color/white"
+            android:hint="Write Deleted Id"></EditText>
+
+        <Button
+            android:id="@+id/DelRev"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:text="Delete Review"></Button>
+
+        <Button
+            android:id="@+id/DelUser"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:text="Delete User"></Button>
+
+        <Button
+            android:id="@+id/DelRest"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:text="Delete Restourant"></Button>
+
+        <EditText
+            android:id="@+id/RestourantName"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:background="@color/white"
+            android:hint="Write Restourant Name"></EditText>
+
+        <EditText
+            android:id="@+id/RestourantSummary"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:background="@color/white"
+            android:hint="Write Restourant  Summary"
+    >
+    </EditText>
+
+        <Spinner
+            android:id="@+id/Spnner"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:background="@color/white" />
+
+        <Button
+            android:id="@+id/AddRest"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:text="Add Restourant"></Button>
+
+        <EditText
+            android:id="@+id/BossRest"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:background="@color/white"
+            android:hint="Boss's Restourant Name"></EditText>
+        <Spinner
+            android:id="@+id/Reqt"
+            android:layout_width="247dp"
+            android:layout_height="46dp"
+            android:layout_marginTop="10sp"
+            android:background="@color/white" />
+
+        <Button
+            android:id="@+id/AcceptRequest"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10sp"
+            android:text="SetBoss"></Button>
+    </LinearLayout>
+
+    
+</RelativeLayout>
